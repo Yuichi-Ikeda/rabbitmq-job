@@ -23,7 +23,7 @@ def callback(ch, method, properties, body):
 
     try:
         container = ContainerClient.from_container_url(task['sas-url'])
-        container.upload_blob(name='task-{:06}'.format(task['task-id']), data='Task Starting.')
+        container.upload_blob(name='task-{:06}'.format(task['task-id']), data='Task Starting.', overwrite=True)
     except Exception as ex:
         print("Exception: " + ex)
 
