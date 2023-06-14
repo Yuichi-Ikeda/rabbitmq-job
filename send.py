@@ -24,12 +24,12 @@ def main():
     channel.queue_declare(queue='sample', durable=True)
 
     # Set number of messages to send
-    for num in range(10000):
+    for num in range(10):
         task = {
             'job-id': jobID,
             'task-id': num,
             'sas-url': sas_url,
-            'wait-seconds': 80
+            'wait-seconds': 30
         }
         channel.basic_publish(exchange='', 
                             routing_key='sample',
