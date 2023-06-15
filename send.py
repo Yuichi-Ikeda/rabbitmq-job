@@ -5,13 +5,13 @@ import uuid
 from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient, generate_container_sas, ContainerSasPermissions
 
-# Main
+### Main ###
 def main():
     # JOB ID for tracking
     jobID = str(uuid.uuid4())
-    print('job-id: ' + jobID, flush=True)
+    print(str(datetime.now()) + '\tjob-id: ' + jobID, flush=True)
 
-    # Generate SAS token for container
+    # Generate SAS token for blob container
     sas_url = generateSaSUri(jobID)
 
     # RabbitMQ connection
@@ -19,27 +19,26 @@ def main():
     hostname= 'localhost' #os.getenv("hostname")
 
     credentials= pika.PlainCredentials('user', password)
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=hostname, credentials=credentials))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=hostname, credentials=credentials, heartbeat=0))
     channel = connection.channel()
-    channel.queue_declare(queue='sample', durable=True)
+    channel.queue_declare(queue='sample')
 
     # Set number of messages to send
-    for num in range(10):
+    for num in range(1000):
         task = {
             'job-id': jobID,
             'task-id': num,
             'sas-url': sas_url,
-            'wait-seconds': 30
+            'wait-seconds': 300
         }
         channel.basic_publish(exchange='', 
                             routing_key='sample',
-                            properties=pika.BasicProperties(delivery_mode = pika.spec.PERSISTENT_DELIVERY_MODE),
                             body=json.dumps(task))
 
     connection.close()
 
 
-# Generate SAS token for container
+### Generate SAS token for container ###
 def generateSaSUri(jobID):
     try:
         connection_string = os.getenv("STORAGE_CONNECTION")
@@ -64,6 +63,6 @@ def generateSaSUri(jobID):
         print(ex)
         return None
 
-# call main function
+### call main function ###
 if __name__ == "__main__":
     main()

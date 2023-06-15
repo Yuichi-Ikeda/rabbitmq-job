@@ -11,7 +11,7 @@ RUN pip install azure.storage.blob
 
 # Copy program file to container
 COPY receive.py .
-# COPY 2.7gb.data .
+COPY 2.7gb.data .
 
 # Run program
 CMD ["python", "-u" ,"receive.py"]
